@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """
 @author: ppy2790
 """
@@ -13,8 +13,7 @@ class huoche(object):
 	driver_name=''
 	executable_path=''
 	#用户名，密码
-	username = u"lxh9788@qq.com"
-	passwd = u"qq61169201994"
+
 	# cookies值得自己去找, 下面两个分别是上海, 太原南
 	starts = u"%u4E0A%u6D77%2CSHH"
 	ends = u"%u592A%u539F%2CTYV"
@@ -23,7 +22,7 @@ class huoche(object):
 	# 车次，选择第几趟，0则从上之下依次点击
 	order = 1
 	###乘客名
-	users = [u"陈兴旺"]
+	users = [u"raorao"]
 	##席位
 	xb = u"二等座"
 	pz=u"成人票"
