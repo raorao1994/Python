@@ -92,8 +92,9 @@ class DownLoad(object):
             print(fileName+"文件添加数据："+str(index))
     #获取url连接html内容
     def downLoadHtml(self,url):
-        request=requests.get(url=url);
+        request=requests.get(url=url, timeout=(5, 27));
         html=request.text;
+        request.close();
         return html;
 
 if __name__=="__main__":
