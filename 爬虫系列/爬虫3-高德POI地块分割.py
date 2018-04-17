@@ -18,19 +18,34 @@ class Rect:
 
 class Cut:
     def __init__(self):
-        self.filePath="MapPOI/矩形区域.txt";
+        self.maxCount = 250;
+        self.PageSize = 11;
+        self.types="050000";
+        self.CountRequest=0;
+        self.filePath="MapPOI/rect/050000.txt";
         #self.Url="http://restapi.amap.com/v3/place/polygon?polygon=108.640287,26.043184;110.579374,27.275355&key=dc44a8ec8db3f9ac82344f9aa536e678&extensions=all&offset=5&page=1";
         self.Url = "http://restapi.amap.com/v3/place/polygon?polygon=";
     #切分地块
     def CutChina(self,rect):
         url=self.Url;
-        url=self.Url+str(rect.xmin)+","+str(rect.ymin)+","+str(rect.xmax)+","+str(rect.ymax)+"&key=dc44a8ec8db3f9ac82344f9aa536e678&extensions=all&offset=5&page=1"
-        print(url);
-        data=self.DownHtml(url=url);
-        jsonData=json.loads(data)
-        count=int(jsonData["count"])
-        print(count);
-        if count<900:
+        url=self.Url+str(rect.xmin)+","+str(rect.ymin)+","+str(rect.xmax)+","+str(rect.ymax)+"&key=caaa086bdf5666322fba3baf5a6a2c03&extensions=all&offset=25&page=1&types="+self.types;
+        #print(url);
+        count=0;
+        try:
+            data = self.DownHtml(url=url);
+            jsonData = json.loads(data);
+            print(url);
+            count=int(jsonData["count"]);
+        except IOError:
+            count = 0;
+            print('请求错误')
+        else:
+            count = int(jsonData["count"]);
+        self.CountRequest=self.CountRequest+1;
+        print("第"+str(self.CountRequest)+"次请求--数量："+str(count));
+        if count<self.maxCount:
+            if count==0:
+                return ;
             file=open(self.filePath,"a")
             file.writelines(str(rect.xmin)+","+str(rect.ymin)+","+str(rect.xmax)+","+str(rect.ymax)+"\n");
             file.close();
@@ -43,13 +58,13 @@ class Cut:
             rect3 = Rect(xmin=rect.xmin, ymin=middleY, xmax=middleX, ymax=rect.ymax);
             rect4 = Rect(xmin=middleX, ymin=middleY, xmax=rect.xmax, ymax=rect.ymax);
             #使用递归调用
-            time.sleep(1)  # 休眠1秒
+            time.sleep(0.1)  # 休眠0.1秒
             self.CutChina(rect=rect1);
-            time.sleep(1)  # 休眠1秒
+            time.sleep(0.1)  # 休眠0.1秒
             self.CutChina(rect=rect2);
-            time.sleep(1)  # 休眠1秒
+            time.sleep(0.1)  # 休眠0.1秒
             self.CutChina(rect=rect3);
-            time.sleep(1)  # 休眠1秒
+            time.sleep(0.1)  # 休眠0.1秒
             self.CutChina(rect=rect4);
     #下载数据
     def DownHtml(self,url):
