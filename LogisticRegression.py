@@ -17,6 +17,7 @@ def gradAscent(dataMat, labelMat): #梯度上升求最优参数
     dataMatrix=mat(dataMat) #将读取的数据转换为矩阵
     classLabels=mat(labelMat).transpose() #将读取的数据转换为矩阵
     m,n = shape(dataMatrix)
+    print(str(m)+":"+str(n));
     alpha = 0.001  #设置梯度的阀值，该值越大梯度上升幅度越大
     maxCycles = 500 #设置迭代的次数，一般看实际数据进行设定，有些可能200次就够了
     weights = ones((n,1)) #设置初始的参数，并都赋默认值为1。注意这里权重以矩阵形式表示三个参数。
@@ -57,36 +58,36 @@ def stocGradAscent1(dataMat, labelMat): #改进版随机梯度上升，在每次
             del(dataIndex[randIndex]) #去除已经抽取的样本
     return weights
 
-# def plotBestFit(weights):  #画出最终分类的图
-#     import matplotlib.pyplot as plt
-#     dataMat,labelMat=loadDataSet()
-#     dataArr = array(dataMat)
-#     n = shape(dataArr)[0]
-#     xcord1 = []; ycord1 = []
-#     xcord2 = []; ycord2 = []
-#     for i in range(n):
-#         if int(labelMat[i])== 1:
-#             xcord1.append(dataArr[i,1])
-#             ycord1.append(dataArr[i,2])
-#         else:
-#             xcord2.append(dataArr[i,1])
-#             ycord2.append(dataArr[i,2])
-#     fig = plt.figure()
-#     ax = fig.add_subplot(111)
-#     ax.scatter(xcord1, ycord1, s=30, c='red', marker='s')
-#     ax.scatter(xcord2, ycord2, s=30, c='green')
-#     x = arange(-3.0, 3.0, 0.1)
-#     y = (-weights[0]-weights[1]*x)/weights[2]
-#     ax.plot(x, y)
-#     plt.xlabel('X1')
-#     plt.ylabel('X2')
-#     plt.show()
+def plotBestFit(weights):  #画出最终分类的图
+    import matplotlib.pyplot as plt
+    dataMat,labelMat=loadDataSet()
+    dataArr = array(dataMat)
+    n = shape(dataArr)[0]
+    xcord1 = []; ycord1 = []
+    xcord2 = []; ycord2 = []
+    for i in range(n):
+        if int(labelMat[i])== 1:
+            xcord1.append(dataArr[i,1])
+            ycord1.append(dataArr[i,2])
+        else:
+            xcord2.append(dataArr[i,1])
+            ycord2.append(dataArr[i,2])
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.scatter(xcord1, ycord1, s=30, c='red', marker='s')
+    ax.scatter(xcord2, ycord2, s=30, c='green')
+    x = arange(-3.0, 3.0, 0.1)
+    y = (-weights[0]-weights[1]*x)/weights[2]
+    ax.plot(x, y)
+    plt.xlabel('X1')
+    plt.ylabel('X2')
+    plt.show()
 
 def main():
     dataMat, labelMat = loadDataSet()
     weights=gradAscent(dataMat, labelMat).getA()
     
-    # plotBestFit(weights)
+    plotBestFit(weights)
 
 if __name__=='__main__':
     main()
