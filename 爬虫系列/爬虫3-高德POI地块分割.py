@@ -25,10 +25,12 @@ class Cut:
         self.filePath="MapPOI/rect/050000.txt";
         #self.Url="http://restapi.amap.com/v3/place/polygon?polygon=108.640287,26.043184;110.579374,27.275355&key=dc44a8ec8db3f9ac82344f9aa536e678&extensions=all&offset=5&page=1";
         self.Url = "http://restapi.amap.com/v3/place/polygon?polygon=";
+        self.keys=["dc44a8ec8db3f9ac82344f9aa536e678","caaa086bdf5666322fba3baf5a6a2c03","1f648c12a2709a14b0e79551fdc5f791","d94035ac264f0cc5b293199360ca0e1e","25570139c46c9bc652ded0d3be576696","bfe31f4e0fb231d29e1d3ce951e2c780","608d75903d29ad471362f8c58c550daf"];
+        self.keysIndex=0;
     #切分地块
     def CutChina(self,rect):
         url=self.Url;
-        url=self.Url+str(rect.xmin)+","+str(rect.ymin)+","+str(rect.xmax)+","+str(rect.ymax)+"&key=caaa086bdf5666322fba3baf5a6a2c03&extensions=all&offset=25&page=1&types="+self.types;
+        url=self.Url+str(rect.xmin)+","+str(rect.ymin)+","+str(rect.xmax)+","+str(rect.ymax)+"&key="+self.keys[self.keysIndex]+"&extensions=all&offset=25&page=1&types="+self.types;
         #print(url);
         count=0;
         try:
@@ -36,11 +38,19 @@ class Cut:
             jsonData = json.loads(data);
             print(url);
             count=int(jsonData["count"]);
-        except IOError:
-            count = 0;
-            print('请求错误')
-        else:
+        except KeyError:
+            print("切换index");
+            self.keysIndex = self.keysIndex + 1;
+            length=len(self.keys);
+            if self.keysIndex ==length :
+                count = 0;
+                print('请求错误')
+            url = self.Url;
+            url = self.Url + str(rect.xmin) + "," + str(rect.ymin) + "," + str(rect.xmax) + "," + str(rect.ymax) + "&key=" + self.keys[self.keysIndex] + "&extensions=all&offset=25&page=1&types=" + self.types;
+            data = self.DownHtml(url=url);
+            jsonData = json.loads(data);
             count = int(jsonData["count"]);
+
         self.CountRequest=self.CountRequest+1;
         print("第"+str(self.CountRequest)+"次请求--数量："+str(count));
         if count<self.maxCount:
