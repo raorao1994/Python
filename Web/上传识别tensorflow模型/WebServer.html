@@ -1,0 +1,33 @@
+﻿<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <input type="file" id="img" />
+    <input type="button" onclick="UploadFile();" value="提交" />
+    <script>
+        function UploadFile(){
+            var fileObj = document.getElementById("img").files[0];  // 获取文件对象
+            var form = new FormData();  // 创建Form对象
+            form.append("user", "uuu");
+            form.append("favor", "1");
+            form.append("filedata", fileObj);
+            var xhr = new XMLHttpRequest();
+            xhr.open("post", 'http://127.0.0.1:8888/index', true);
+            xhr.onreadystatechange = function () {
+                if (xhr.status == 200) {
+                    if (xhr.readyState == 4) {
+                        console.log(xhr.responseText);
+                        alert("上传完成");
+                    }
+                } else {
+                    alert("上传失败");
+                }
+            }
+            xhr.send(form);  //发送
+        }
+    </script>
+</body>
+</html>
