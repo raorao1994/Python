@@ -59,17 +59,21 @@ class DataDispose:
                 continue;
 
             url=self.BuildUrl+x+","+y+"&words="+strs[0];
-            print(url);
+            #print(url);
             strdata=self.GetData(url);
             jsonData = json.loads(strdata);
-            buildlist=jsonData["data"]["tip_list"];
+            if jsonData["status"]!="1":
+                line = f.readline();
+                continue;
 
+            buildlist=jsonData["data"]["tip_list"];
             for build in buildlist:
                 category=build["tip"]["category"]
                 name = build["tip"]["name"]
                 id=build["tip"]["id"]
                 if category==strs[3] and name==strs[0]:
                     self.GetBuild(id,line)
+                    break;
 
             #判断数据属于哪个省份
             line=f.readline();
@@ -83,8 +87,8 @@ class DataDispose:
     #保存数据
     def SaveStr(self):
         #保存数据
-        pathStr=self.SaveDir+"/"+self.Province+".csv";
-        file=open(pathStr,'a');
+        pathStr=self.SaveDir+self.Province+".csv";
+        file=open(pathStr,'w');
         file.writelines(self.Dic);
         file.close();
         self.Dic="";
