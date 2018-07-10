@@ -17,13 +17,13 @@ class DataDispose:
         #读取文件路径
         self.FilePathStr="D:/BaiduNetdiskDownload/整理/";
         #保存文件路径
-        self.SaveDir="F:/数据/整理/文件";
+        self.SaveDir="F:/GIS数据/整理/";
         #省份信息
         self.Province="北京市";
-        #获取建筑物ID URL
-        self.BuildUrl="https://gaode.com/service/poiTipslite?geoobj=116.298521,39.949916&words=某某小区";
-        #获取建筑物边界URl
-        self.GetPloy="https://www.amap.com/detail/get/detail?id=B0FFF9Q1I7";
+        #获取建筑物ID URL https://gaode.com/service/poiTipslite?geoobj=116.298521,39.949916&words=某某小区
+        self.BuildUrl="https://gaode.com/service/poiTipslite?geoobj=";
+        #获取建筑物边界URl https://www.amap.com/detail/get/detail?id=B0FFF9Q1I7
+        self.GetPloy="https://www.amap.com/detail/get/detail?id=";
         #中国省份
         self.Provinces=["北京市","天津市","河北省","山西省","内蒙古自治区","辽宁省",
                         "吉林省","黑龙江省","上海市","江苏省","浙江省","安徽省","福建省",
@@ -42,15 +42,41 @@ class DataDispose:
         #读取第一行
         line=f.readline();
         #判断是否存在数据
+        count=0;
         while line:
+            line=line.replace("\n","")
             strs=line.split(',');
-            if strs[6].isdigit()==False and strs[7].isdigit()==False:
-                line=f.readline();
+            x=0;
+            y=0;
+            if strs[6].isdigit()==True:
+                x=strs[6];
+                y=strs[7];
+            else:
+                x = strs[7];
+                y = strs[8];
+            if y.isdigit()!=True:
+                line = f.readline();
                 continue;
-            url=self.BuildUrl+"";
-            strr=strs[6]+strs[7];
+
+            url=self.BuildUrl+x+","+y+"&words="+strs[0];
+            print(url);
+            strdata=self.GetData(url);
+            jsonData = json.loads(strdata);
+            buildlist=jsonData["data"]["tip_list"];
+
+            for build in buildlist:
+                category=build["tip"]["category"]
+                name = build["tip"]["name"]
+                id=build["tip"]["id"]
+                if category==strs[3] and name==strs[0]:
+                    self.GetBuild(id,line)
+
             #判断数据属于哪个省份
             line=f.readline();
+            count=count+1;
+            if count%1000==1:
+                self.SaveStr();
+                print("保存");
         #关闭文件
         f.close();
     
@@ -62,7 +88,7 @@ class DataDispose:
         file.writelines(self.Dic);
         file.close();
         self.Dic="";
-        print(key+"保存完成");
+        print("保存完成");
     
     #http请求
     def GetData(self,url):
@@ -74,12 +100,23 @@ class DataDispose:
         except:
             return "";
 
+    #获取建筑信息
+    def GetBuild(self,buildId,line):
+        #buildId="B0FFF9Q1I7";
+        url=self.GetPloy+buildId;
+        print(url);
+        strdata = self.GetData(url);
+        jsonData = json.loads(strdata);
+        if ("mining_shape" in strdata) and ("shape" in strdata):
+            shape=jsonData["data"]["spec"]["mining_shape"]["shape"]
+            self.Dic+=line+","+jsonData["data"]["spec"]["mining_shape"]["area"]+","+shape+"\n"
+        #print(self.Dic);
 
 if __name__=="__main__":
     #创建对象
     data=DataDispose();
     #执行
-
+    data.Read();
     #保存
     data.SaveStr();
 
