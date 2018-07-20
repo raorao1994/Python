@@ -33,10 +33,19 @@ class DataDispose:
         #定义数据string
         self.Dic="";
 
+    # 判断是否为数字
+    def isNum(self,value):
+        try:
+            float(value)
+        except BaseException:
+            return False
+        else:
+            return True
+
     #处理数据
     def Read(self):
         count=0;
-        pathStr=self.FilePathStr+self.Province+"/"+self.TypeCode+".csv";
+        pathStr=self.FilePathStr+self.Province+"/"+self.TypeCode+".txt";
         #打开文件
         f=open(pathStr,"r");
         #读取第一行
@@ -44,41 +53,16 @@ class DataDispose:
         #判断是否存在数据
         count=0;
         while line:
-            line=line.replace("\n","")
-            strs=line.split(',');
-            x=0;
-            y=0;
-            if strs[6].isdigit()==True:
-                x=strs[6];
-                y=strs[7];
+            try:
+                self.GetBuildId(line);
+            except BaseException:
+                print("GetBuildId报错")
             else:
-                x = strs[7];
-                y = strs[8];
-            if y.isdigit()!=True:
-                line = f.readline();
-                continue;
-
-            url=self.BuildUrl+x+","+y+"&words="+strs[0];
-            #print(url);
-            strdata=self.GetData(url);
-            jsonData = json.loads(strdata);
-            if jsonData["status"]!="1":
-                line = f.readline();
-                continue;
-
-            buildlist=jsonData["data"]["tip_list"];
-            for build in buildlist:
-                category=build["tip"]["category"]
-                name = build["tip"]["name"]
-                id=build["tip"]["id"]
-                if category==strs[3] and name==strs[0]:
-                    self.GetBuild(id,line)
-                    break;
-
+                i=1;
             #判断数据属于哪个省份
             line=f.readline();
             count=count+1;
-            if count%1000==1:
+            if count%100==1:
                 self.SaveStr();
                 print("保存");
         #关闭文件
@@ -104,6 +88,42 @@ class DataDispose:
         except:
             return "";
 
+    def GetBuildId(self,line):
+        line = line.replace("\n", "")
+        strs = line.split(',');
+        x = 0;
+        y = 0;
+        if self.isNum(strs[6]):
+            x = strs[6];
+            y = strs[7];
+        else:
+            x = strs[7];
+            y = strs[8];
+        if self.isNum(y) != True:
+            return ;
+
+        url = self.BuildUrl + x + "," + y + "&words=" + strs[0];
+        # print(url);
+        strdata = self.GetData(url);
+        jsonData = {}
+        jsonData = json.loads(strdata);
+        if jsonData["status"] != "1":
+            return ;
+
+        buildlist = jsonData["data"]["tip_list"];
+        for build in buildlist:
+            category = build["tip"]["category"]
+            name = build["tip"]["name"]
+            id = build["tip"]["id"]
+            if name == strs[0] and category.find('12') == 0:
+                try:
+                    self.GetBuild(id, line)
+                except BaseException:
+                    print("GetBuild报错");
+                else:
+                    break;
+                break;
+
     #获取建筑信息
     def GetBuild(self,buildId,line):
         #buildId="B0FFF9Q1I7";
@@ -113,7 +133,7 @@ class DataDispose:
         jsonData = json.loads(strdata);
         if ("mining_shape" in strdata) and ("shape" in strdata):
             shape=jsonData["data"]["spec"]["mining_shape"]["shape"]
-            self.Dic+=line+","+jsonData["data"]["spec"]["mining_shape"]["area"]+","+shape+"\n"
+            self.Dic+=line+","+jsonData["data"]["spec"]["mining_shape"]["area"]+",|["+shape+"]\n"
         #print(self.Dic);
 
 if __name__=="__main__":
